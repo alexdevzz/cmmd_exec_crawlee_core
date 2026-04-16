@@ -2,6 +2,7 @@ import asyncio
 
 from crawlee.crawlers import BeautifulSoupCrawler, PlaywrightCrawler
 from crawlee.router import Router
+from crawlee import ConcurrencySettings
 
 
 class GenericCrawler:
@@ -9,22 +10,24 @@ class GenericCrawler:
     def __init__(self, crawler_type='bs4', max_concurrency=5):
         self.crawler_type = crawler_type
         self.max_concurrency = max_concurrency
-        self._crawler = None
-        self._router = Router()
 
+    def _create_crawler(self, router):
+        concurrency = ConcurrencySettings(
+            max_concurrency=self.max_concurrency,
+            desired_concurrency=1
+        )
 
-    def _create_crawler(self):
         if self.crawler_type == 'bs4':
             return BeautifulSoupCrawler(
                 max_requests_per_crawl = 1,
-                max_concurrency = self.max_concurrency,
-                router = self._router,
+                concurrency_settings = concurrency,
+                request_handler = router
             )
         elif self.crawler_type == 'playwright':
             return PlaywrightCrawler(
                 max_requests_per_crawl = 1,
-                max_concurrency = self.max_concurrency,
-                router = self._router,
+                concurrency_settings = concurrency,
+                request_handler = router,
                 headless=True,
             )
         else:
@@ -38,12 +41,11 @@ class GenericCrawler:
         y devuelve un diccionario con los datos extraídos.
         """
 
-        # limpiar el router anterior por si acaso
-        self._router = Router()
+        router = Router()
         result_data = {}
 
         # definir handler dinamico
-        @self._router.default_handler
+        @router.default_handler
         async def handler(context):
             nonlocal result_data
             # llamar el extractor proporcionado
@@ -51,10 +53,8 @@ class GenericCrawler:
             result_data = extracted
             # no es necesario enqueue links
 
-        # crear crawler si no existe
-        if self._crawler is None:
-            self._crawler = self._create_crawler()
+        crawler = self._create_crawler(router)
 
         # ejecutar con una sola URL
-        await self._crawler.run([url])
+        await crawler.run([url])
         return result_data
