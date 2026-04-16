@@ -1,4 +1,4 @@
-from crawlee.storages import KeyValueStore
+
 from datetime import datetime, timedelta
 
 
@@ -9,6 +9,7 @@ class CacheManager:
         self.cache_name = cache_name
 
     async def __aenter__(self):
+        from crawlee.storages import KeyValueStore
         self.kv_store = await KeyValueStore.open(name=self.cache_name)
         return self
 

@@ -1,9 +1,6 @@
 import hashlib
 from abc import ABC, abstractmethod
 
-from core.cache_manager import CacheManager
-from core.generic_crawler import GenericCrawler
-
 
 class BaseScrapingService(ABC):
     """
@@ -22,6 +19,7 @@ class BaseScrapingService(ABC):
 
     def _get_crawler(self):
         if self._crawler is None:
+            from core.generic_crawler import GenericCrawler
             self._crawler = GenericCrawler(crawler_type=self.crawler_type, max_concurrency=self.max_concurrency)
         return self._crawler
 
@@ -41,6 +39,7 @@ class BaseScrapingService(ABC):
         """
 
         # 1. Consultar cache
+        from core.cache_manager import CacheManager
         async with CacheManager(self.cache_name) as cache:
             data, found = await cache.get(self.cache_key)
             if found:
@@ -51,7 +50,7 @@ class BaseScrapingService(ABC):
         print(f"[{self.__class__.__name__}] Scraping (without cache): {self.url}")
         crawler = self._get_crawler()
         # el estractor es nuestro metodo extract_data
-        result = await crawler.scrape(self.url, self.extract_data) ## podria faltar un parentisis al final del metodo extract_data ()
+        result = await crawler.scrape(self.url, self.extract_data)
 
         # 3. Guardar en cache
         async with CacheManager(self.cache_name) as cache:

@@ -1,9 +1,3 @@
-import asyncio
-
-from crawlee.crawlers import BeautifulSoupCrawler, PlaywrightCrawler
-from crawlee.router import Router
-from crawlee import ConcurrencySettings
-
 
 class GenericCrawler:
 
@@ -12,18 +6,21 @@ class GenericCrawler:
         self.max_concurrency = max_concurrency
 
     def _create_crawler(self, router):
+        from crawlee import ConcurrencySettings
         concurrency = ConcurrencySettings(
             max_concurrency=self.max_concurrency,
             desired_concurrency=1
         )
 
         if self.crawler_type == 'bs4':
+            from crawlee.crawlers import BeautifulSoupCrawler
             return BeautifulSoupCrawler(
                 max_requests_per_crawl = 1,
                 concurrency_settings = concurrency,
                 request_handler = router
             )
         elif self.crawler_type == 'playwright':
+            from crawlee.crawlers import PlaywrightCrawler
             return PlaywrightCrawler(
                 max_requests_per_crawl = 1,
                 concurrency_settings = concurrency,
@@ -41,6 +38,7 @@ class GenericCrawler:
         y devuelve un diccionario con los datos extraídos.
         """
 
+        from crawlee.router import Router
         router = Router()
         result_data = {}
 
@@ -49,6 +47,7 @@ class GenericCrawler:
         async def handler(context):
             nonlocal result_data
             # llamar el extractor proporcionado
+            import asyncio
             extracted = await extractor(context) if asyncio.iscoroutinefunction(extractor) else extractor(context)
             result_data = extracted
             # no es necesario enqueue links
