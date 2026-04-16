@@ -54,7 +54,7 @@ class BaseScrapingService(ABC):
 
         # 3. Guardar en cache
         async with CacheManager(self.cache_name) as cache:
-            await cache.set(self.cache_key, result, ttl=self.ttl_seconds)
+            await cache.set(self.cache_key, result, self.url, ttl=self.ttl_seconds)
             print(f'[{self.__class__.__name__}] Data saved on cache for: {self.url}')
 
         return result

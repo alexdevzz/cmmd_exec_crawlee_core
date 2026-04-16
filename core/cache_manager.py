@@ -36,13 +36,14 @@ class CacheManager:
 
         return None, False
 
-    async def set(self, key, data, ttl=900):
+    async def set(self, key, data, url, ttl=900):
         """
         Save data with TTL
         """
         entry = {
-            'data': data,
+            'url': url,
             'ttl': ttl,
             'timestamp': datetime.now().isoformat(),
+            'data': data,
         }
         await self.kv_store.set_value(key, entry)
