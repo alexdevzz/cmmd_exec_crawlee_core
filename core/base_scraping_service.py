@@ -15,7 +15,7 @@ class BaseScrapingService(ABC):
         self._crawler = None # lazy init
         self.url = 'https://www.google.com/'
         self.ttl_seconds = 900
-        self.cache_key = f'cache_{hashlib.md5(self.url.encode()).hexdigest()}'
+        self.cache_key = None
 
     def _get_crawler(self):
         if self._crawler is None:
@@ -37,6 +37,10 @@ class BaseScrapingService(ABC):
         Obtiene datos de la URL, usando caché si está vigente.
         Si no hay caché o expiró, ejecuta el crawler y guarda.
         """
+
+        # 0.1 Settear la cache_key si es 'None'
+        if self.cache_key is None:
+            self.cache_key = f'cache_{hashlib.md5(self.url.encode()).hexdigest()}'
 
         # 1. Consultar cache
         from core.cache_manager import CacheManager
