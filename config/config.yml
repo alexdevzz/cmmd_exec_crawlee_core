@@ -1,0 +1,21 @@
+# Configuraciones
+
+# Todas estas configuraciones son aplicadas por defecto
+# siempre y cuando no sean sobrescritas por herencia.
+
+crawler:
+  type: bs4                           # 'bs4' o 'playwright'
+  max_concurrency: 5                  # Concurrencia maxima
+
+cache:
+  name: scraping-cache                # Nombre del KeyValueStore de Crawlee (directorio)
+
+  key: encrypt-url                    # Nombre de la cache para los servicios (subdirectorio)
+                                      # puede ser: [encrypt-url, url, uuid, "nombre sobrescrito en clase hija"]
+
+  key_prefix: cache_                  # Prefijo para las claves dentro de la cache
+  ttl_seconds: 900                    # Tiempo de vida por defecto
+
+storage:
+  path: ./crawlee_storage             # Directorio donde Crawlee guarda sus datos
+                                      # Contiene dentro a cache:name y cache:key (directorio principal)
