@@ -19,3 +19,12 @@ cache:
 storage:
   path: ./crawlee_storage             # Directorio donde Crawlee guarda sus datos
                                       # Contiene dentro a cache:name y cache:key (directorio principal)
+
+logging:
+  level: DEBUG                         # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: logs/scraper.log               # Si quieres guardar en archivo, déjalo vació para solo consola
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+
+  crawlee_level: WARNING              # Opcional: nivel específico para Crawlee
+  asyncio_level: WARNING              # Opcional: nivel específico para Asyncio

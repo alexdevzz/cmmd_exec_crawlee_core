@@ -3,6 +3,7 @@ import uuid
 from abc import ABC, abstractmethod
 
 from config.config import get_config
+from logger.logger import get_logger
 
 
 class BaseScrapingService(ABC):
@@ -21,6 +22,7 @@ class BaseScrapingService(ABC):
         self.url = 'https://www.google.com/'
         self._cache_key = None
         self._crawler = None # lazy init
+        self._logger = get_logger(self.__class__.__name__)
 
 
     @property
@@ -74,19 +76,19 @@ class BaseScrapingService(ABC):
             cache_path = self.cache_key_prefix + self.cache_key
             data, found = await cache.get(cache_path)
             if found:
-                print(f'[{self.__class__.__name__}] Using cache for: {self.url}')
+                self._logger.info(f'Using cache for: {self.url}')
                 return data
 
-        # 2. No esta en cache: usar crawler
-        print(f"[{self.__class__.__name__}] Scraping (without cache): {self.url}")
+        # 2. No está en cache: usar crawler
+        self._logger.info(f"Not cache found. Scraping: {self.url}")
         crawler = self._get_crawler()
-        # el estractor es nuestro metodo extract_data
+        # el extractor es nuestro método extract_data
         result = await crawler.scrape(self.url, self.extract_data)
 
         # 3. Guardar en cache
         async with CacheManager(self.cache_name) as cache:
+            self._logger.info(f'Data saved on cache for: {self.url}')
             await cache.set(cache_path, result, self.url, ttl=self.ttl_seconds)
-            print(f'[{self.__class__.__name__}] Data saved on cache for: {self.url}')
 
         return result
 

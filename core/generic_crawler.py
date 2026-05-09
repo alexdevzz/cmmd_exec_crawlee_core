@@ -1,9 +1,14 @@
+import logging
+
+from logger.logger import get_logger, setup_logging
+
 
 class GenericCrawler:
 
     def __init__(self, crawler_type='bs4', max_concurrency=5):
         self.crawler_type = crawler_type
         self.max_concurrency = max_concurrency
+        self._logger = get_logger(__name__)
 
     def _create_crawler(self, router):
         from crawlee import ConcurrencySettings
@@ -37,12 +42,13 @@ class GenericCrawler:
         extractor es una función que recibe el contexto (BeautifulSoupCrawlingContext o PlaywrightCrawlingContext)
         y devuelve un diccionario con los datos extraídos.
         """
+        self._logger.debug(f'Initializing scraping for "{url}" with type "{self.crawler_type}"')
 
         from crawlee.router import Router
         router = Router()
         result_data = {}
 
-        # definir handler dinamico
+        # definir handler dinámico
         @router.default_handler
         async def handler(context):
             nonlocal result_data
@@ -54,6 +60,10 @@ class GenericCrawler:
 
         crawler = self._create_crawler(router)
 
+        # Sobrescribir el root logging, ya que crawlee lo cambia (si no se hace no salen los próximos logs)
+        setup_logging()
+
         # ejecutar con una sola URL
         await crawler.run([url])
+        self._logger.debug(f'Scraping end for {url}')
         return result_data

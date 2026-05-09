@@ -1,12 +1,12 @@
-
 from datetime import datetime, timedelta
-
+from logger.logger import get_logger
 
 class CacheManager:
 
     def __init__(self, cache_name='cache'):
         self.kv_store = None
         self.cache_name = cache_name
+        self._logger = get_logger(__name__)
 
     async def __aenter__(self):
         from crawlee.storages import KeyValueStore
@@ -32,8 +32,10 @@ class CacheManager:
             expired_at = timestamp + timedelta(seconds=ttl)
 
             if expired_at > datetime.now():
+                self._logger.debug(f"Cache HIT for key: {key}")
                 return cached.get('data'), True
 
+        self._logger.debug(f"Cache expired for key: {key}")
         return None, False
 
     async def set(self, key, data, url, ttl=900):
@@ -46,4 +48,5 @@ class CacheManager:
             'timestamp': datetime.now().isoformat(),
             'data': data,
         }
+        self._logger.debug(f"Saving in cache: KEY {key} with TTL {ttl}")
         await self.kv_store.set_value(key, entry)
