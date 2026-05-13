@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmmd-exec-crawlee-core"
+version = "0.1.0"
+description = "Core de scraping con Crawlee"
+requires-python = ">=3.9"
+dependencies = [
+    "crawlee",
+    "pyyaml",
+]
+
+[tool.setuptools.packages.find]
+include = ["core*", "logger*", "config*"]
