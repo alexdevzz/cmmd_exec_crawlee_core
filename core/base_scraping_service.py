@@ -6,6 +6,20 @@ from config.config import get_config
 from logger.logger import get_logger
 
 
+# cargar la configuracion
+from config.config import load_config
+config = load_config()
+
+# Configurar logging
+from logger.logger import setup_logging
+setup_logging()
+
+# Añadir configuraciones extras a Crawlee antes de que se inicialice.
+# Configurar el directorio de almacenamiento de Crawlee (antes de importar otras cosas)
+from crawlee.configuration import Configuration
+Configuration.get_global_configuration().storage_dir = config['storage']['path']
+
+
 class BaseScrapingService(ABC):
     """
     Servicio base que combina cache y crawler genérico.
@@ -42,6 +56,15 @@ class BaseScrapingService(ABC):
     @cache_key.setter
     def cache_key(self, value):
         self._cache_key = value
+
+    def __str__(self):
+        return (f'ScrapingService(crawler_type={self.crawler_type}, '
+                f'max_concurrency={self.max_concurrency}, '
+                f'cache_name={self.cache_name}, '
+                f'cache_key_prefix={self.cache_key_prefix}, '
+                f'ttl_seconds={self.ttl_seconds}, '
+                f'url={self.url}, '
+                f'cache_key={self.cache_key})')
 
 
     @staticmethod
@@ -91,6 +114,8 @@ class BaseScrapingService(ABC):
             await cache.set(cache_path, result, self.url, ttl=self.ttl_seconds)
 
         return result
+
+
 
 
 
