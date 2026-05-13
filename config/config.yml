@@ -23,6 +23,7 @@ storage:
 logging:
   level: DEBUG                         # DEBUG, INFO, WARNING, ERROR, CRITICAL
   file: ../logs/scraper.log            # Si quieres guardar en archivo, déjalo vació para solo consola
+  console: false                       # Desactiva la salida por consola
   format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
   datefmt: "%Y-%m-%d %H:%M:%S"
 
